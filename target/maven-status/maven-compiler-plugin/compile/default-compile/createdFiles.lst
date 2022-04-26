@@ -1,3 +1,7 @@
+com\in28minutes\springboot\model\Survey.class
+com\in28minutes\springboot\model\Question.class
 com\in28minutes\springboot\WelcomeService.class
 com\in28minutes\springboot\WelcomeController.class
 com\in28minutes\springboot\Application.class
+com\in28minutes\springboot\service\SurveyService.class
+com\in28minutes\springboot\controller\SurveyController.class
