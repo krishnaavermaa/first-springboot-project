@@ -4,6 +4,7 @@ com\in28minutes\springboot\service\SurveyService.class
 com\in28minutes\springboot\jpa\UserRepository.class
 com\in28minutes\springboot\jpa\User.class
 com\in28minutes\springboot\model\Survey.class
+com\in28minutes\springboot\security\SecurityConfig.class
 com\in28minutes\springboot\WelcomeService.class
 com\in28minutes\springboot\WelcomeController.class
 com\in28minutes\springboot\Application.class

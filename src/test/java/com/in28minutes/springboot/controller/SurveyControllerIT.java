@@ -2,9 +2,9 @@ package com.in28minutes.springboot.controller;
 
 import static org.junit.Assert.*;
 
-
+import java.nio.charset.Charset;
 import java.util.Arrays;
-
+import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONException;
@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 //import org.junit.Test;
@@ -37,17 +38,37 @@ import com.in28minutes.springboot.model.Question;
 @ExtendWith(SpringExtension.class)//replacement of junit4's RunWith and SpringRunner.class
 @SpringBootTest(classes=Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class SurveyControllerIT{
-
+	
 	@LocalServerPort
 	private int port;
 	
 	TestRestTemplate restTemplate = new TestRestTemplate();
 
-	HttpHeaders headers = new HttpHeaders();
+	HttpHeaders headers = createHttpAuthenticationHeader("admin1", "secret2");
+	
 
+	private HttpHeaders createHttpAuthenticationHeader(String userId,
+			String password) {
+
+		HttpHeaders headers = new HttpHeaders();
+		
+		String auth = userId + ":" + password;
+
+		byte[] encodedAuth = Base64.encode(auth.getBytes(Charset
+				.forName("US-ASCII")));
+
+		String headerValue = "Basic " + new String(encodedAuth);
+
+		headers.add("Authorization", headerValue);
+		
+		return headers;
+	}
+	
 	@Before//not working
 	public void before() {
 
+		//headers.add("Authorization", createHttpAuthenticationHeader(
+		//		"user1", "secret1"));
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		System.out.println("***********executed");
 
@@ -87,18 +108,24 @@ public class SurveyControllerIT{
 	@Test
 	public void addQuestion() {
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		headers.setAccessControlExposeHeaders(Collections.singletonList("Location"));
 		Question question = new Question("DOESNTMATTER", "Question1", "Russia",
 				Arrays.asList("India", "Russia", "United States", "China"));
 
 		HttpEntity entity = new HttpEntity<Question>(question, headers);
 
 		ResponseEntity<String> response = restTemplate.exchange(
-				createURLWithPort("/surveys/survey1/questions"),
-				HttpMethod.POST, entity, String.class);
+		createURLWithPort("/surveys/survey1/questions"),
+		HttpMethod.POST, entity, String.class);
+		
+
+		System.out.println("************"+response);
+		//String actual = String.valueOf(response.getHeaders().getAccessControlExposeHeaders());
 
 		String actual = response.getHeaders().get(HttpHeaders.LOCATION).get(0);
 
-		assertTrue(actual.contains("/surveys/survey1/questions/"));
+		assertTrue(actual.contains("/surveys/survey1/questions/"));//its coming false after introducing authorization as 
+		//location is not returned as part of header
 
 	}
 
